@@ -4,10 +4,9 @@ import javafx.application.Platform;
 import javafx.event.ActionEvent;
 import javafx.fxml.Initializable;
 import javafx.scene.Parent;
-import javafx.scene.control.Alert;
-import javafx.scene.control.ButtonType;
 import javafx.scene.control.MenuItem;
 import javafx.scene.control.TextArea;
+import javafx.scene.control.*;
 import javafx.scene.layout.HBox;
 import javafx.scene.text.Font;
 import javafx.scene.text.FontPosture;
@@ -17,7 +16,6 @@ import javafx.stage.FileChooser;
 import javafx.stage.Stage;
 
 import java.awt.*;
-import java.io.Console;
 import java.io.File;
 import java.io.IOException;
 import java.net.URI;
@@ -26,12 +24,12 @@ import java.net.URL;
 import java.nio.file.Files;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
-import java.util.Objects;
 import java.util.Optional;
 import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
 
+    public Separator separator;
     //MainController Attributes:
     private FileChooser fileChooser;
     private Stage stage;
@@ -71,7 +69,7 @@ public class MainController implements Initializable {
         //counting inputted text
         countText.textProperty().bind(state.contentProperty().length().asString());
 
-textArea.setFont(Font.font("", FontWeight.NORMAL, FontPosture.REGULAR, 12));
+        textArea.setFont(Font.font("", FontWeight.NORMAL, FontPosture.REGULAR, 12));
 
         //countLines.textProperty().bind(state.contentProperty());
         //countLines.setText(String.valueOf(textArea.getParagraphs().size()));
@@ -110,48 +108,61 @@ textArea.setFont(Font.font("", FontWeight.NORMAL, FontPosture.REGULAR, 12));
         aboutAlert.showAndWait();
     }
 
-        public void onStatusBar (ActionEvent actionEvent){
-            if (!hbox.isDisabled()) {
-                hbox.setVisible(false);
-                hbox.setDisable(true);
-            } else if (hbox.isDisabled()) {
-                hbox.setVisible(true);
-                hbox.setDisable(false);
-            }
+    public void onStatusBar(ActionEvent actionEvent) {
+        if (!hbox.isDisabled()) {
+            //disables Hbox
+            hbox.setVisible(false);
+            hbox.setDisable(true);
+            //disables separator line
+            separator.setVisible(false);
+            separator.setDisable(true);
+        } else if (hbox.isDisabled()) {
+            hbox.setVisible(true);
+            hbox.setDisable(false);
 
+            separator.setVisible(true);
+            separator.setDisable(false);
         }
+    }
 
-        //Views: Zoom features
-        double FontSizeOfTextArea = 12.0;
+    //Views: Zoom features
+    double FontSizeOfTextArea = 12.0;
 
-        public void onZoomIn (ActionEvent actionEvent){
-            FontSizeOfTextArea++;
-            textArea.setFont(Font.font("System", FontWeight.BOLD, FontSizeOfTextArea));
-        }
+    public void onZoomIn(ActionEvent actionEvent) {
+        FontSizeOfTextArea++;
+        textArea.setFont(Font.font("System", FontWeight.BOLD, FontSizeOfTextArea));
+    }
 
-        public void onZoomOut (ActionEvent actionEvent){
-            FontSizeOfTextArea--;
-            textArea.setFont(Font.font("System", FontWeight.NORMAL, FontSizeOfTextArea));
-        }
+    public void onZoomOut(ActionEvent actionEvent) {
+        FontSizeOfTextArea--;
+        textArea.setFont(Font.font("System", FontWeight.NORMAL, FontSizeOfTextArea));
+    }
 
-        public void OnRestoreDefaultZoom (ActionEvent actionEvent){
-            textArea.setFont(Font.font("System", FontWeight.NORMAL, 12.0));
-            FontSizeOfTextArea = 12.0;
-        }
+    public void OnRestoreDefaultZoom(ActionEvent actionEvent) {
+        textArea.setFont(Font.font("System", FontWeight.NORMAL, 12.0));
+        FontSizeOfTextArea = 12.0;
+    }
 
 
         /*
         Main Controllers methods:
          */
+        /*
+        TODO: logic for word wrap(: a word processing feature that
+        TODO: automatically transfers a word for which there is insufficient space from the end of one line of text to the beginning of the next.)
+        Marked-if it's marked it means that when texts reaches the end then should be shifted down to the new line
+        Unmarked-it should be left as it is now, because it works now as unmarked by default.
+         */
 
-        public void onNew (ActionEvent actionEvent) throws IOException {
-            if (state.getPath() != null || (state.getContent() == null && !textArea.getText().isEmpty())) {
-                Runnable action = () -> {
-                    state.clear();
-                };
-                askToSave(action, action);
-            }
+
+    public void onNew(ActionEvent actionEvent) throws IOException {
+        if (state.getPath() != null || (state.getContent() == null && !textArea.getText().isEmpty())) {
+            Runnable action = () -> {
+                state.clear();
+            };
+            askToSave(action, action);
         }
+    }
         /*
         if yes - save and open untitled new one
         if no - don't save current but open untitled new one
@@ -159,106 +170,106 @@ textArea.setFont(Font.font("", FontWeight.NORMAL, FontPosture.REGULAR, 12));
          */
 
     //needs to fix little mistake
-        public void onOpen (ActionEvent actionEvent) throws IOException {
-            //both of them are changing in live
-            //if (!Objects.equals(state.getContent(), textArea.getText())) {
-            if (!state.getContent().isEmpty()) {
-                Runnable actionOpen = () -> {
-                    fileChooser.setTitle("Open Text File");
-                    File selectedFile = fileChooser.showOpenDialog(stage);
-                    //checking if selected file is null and if it's not then we are setting to text area a new content of selected file
-                    //and setting title of opened file
-                    if (selectedFile != null) {
-                        String openedFileContent = null;
-                        try {
-                            openedFileContent = Files.readString(selectedFile.toPath());
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                        state.setPath(selectedFile.toPath());
-                        state.setContent(openedFileContent);
-                        state.setTitle(selectedFile.getName());
+    public void onOpen(ActionEvent actionEvent) throws IOException {
+        //both of them are changing in live
+        //if (!Objects.equals(state.getContent(), textArea.getText())) {
+        if (!state.getContent().isEmpty()) {
+            Runnable actionOpen = () -> {
+                fileChooser.setTitle("Open Text File");
+                File selectedFile = fileChooser.showOpenDialog(stage);
+                //checking if selected file is null and if it's not then we are setting to text area a new content of selected file
+                //and setting title of opened file
+                if (selectedFile != null) {
+                    String openedFileContent = null;
+                    try {
+                        openedFileContent = Files.readString(selectedFile.toPath());
+                    } catch (IOException e) {
+                        e.printStackTrace();
                     }
-                };
-                askToSave(actionOpen, actionOpen);
-                return;
-            }
-            // }
-            fileChooser.setTitle("Open Text File");
-            File selectedFile = fileChooser.showOpenDialog(stage);
-            String openedFileContent = Files.readString(selectedFile.toPath());
-            state.setPath(selectedFile.toPath());
-            state.setContent(openedFileContent);
-            textArea.setText(state.getContent());
-            state.setTitle(selectedFile.getName());
-            stage.setTitle(state.getTitle());
+                    state.setPath(selectedFile.toPath());
+                    state.setContent(openedFileContent);
+                    state.setTitle(selectedFile.getName());
+                }
+            };
+            askToSave(actionOpen, actionOpen);
+            return;
+        }
+        // }
+        fileChooser.setTitle("Open Text File");
+        File selectedFile = fileChooser.showOpenDialog(stage);
+        String openedFileContent = Files.readString(selectedFile.toPath());
+        state.setPath(selectedFile.toPath());
+        state.setContent(openedFileContent);
+        textArea.setText(state.getContent());
+        state.setTitle(selectedFile.getName());
+        stage.setTitle(state.getTitle());
 
             /*
             if YES -> save current one and open selected file
             if NO -> don't save current but still open selected file
             if Cancel -> don't save current one and don't open new file
              */
-        }
+    }
 
-        private void askToSave (Runnable onYes, Runnable onNo) throws IOException {
-            String alertContent = String.format("Do you want to save changes to %s", state.getFileName());
-            askBeforeAlert.setContentText(alertContent);
-            Optional<ButtonType> buttonType = askBeforeAlert.showAndWait();
+    private void askToSave(Runnable onYes, Runnable onNo) throws IOException {
+        String alertContent = String.format("Do you want to save changes to %s", state.getFileName());
+        askBeforeAlert.setContentText(alertContent);
+        Optional<ButtonType> buttonType = askBeforeAlert.showAndWait();
 
-            if (buttonType.isPresent()) {
-                ButtonType type = buttonType.get();
-                if (type.equals(ButtonType.YES)) {
-                    onSaveAs(null);
-                    onYes.run();
-                } else if (type.equals(ButtonType.NO)) {
-                    onNo.run();
-                }
-            }
-        }
-
-        public void onSave (ActionEvent actionEvent) throws IOException {
-            if (state.getPath() == null) {
+        if (buttonType.isPresent()) {
+            ButtonType type = buttonType.get();
+            if (type.equals(ButtonType.YES)) {
                 onSaveAs(null);
-            } else {
-                Files.writeString(state.getPath(), textArea.getText());
+                onYes.run();
+            } else if (type.equals(ButtonType.NO)) {
+                onNo.run();
             }
         }
+    }
 
-        public void onSaveAs (ActionEvent actionEvent) throws IOException {
-            fileChooser.setTitle("Save As");
-            File selectedFile = fileChooser.showSaveDialog(stage);
-            if (selectedFile != null) {
-                Files.writeString(selectedFile.toPath(), textArea.getText());
-                state.setPath(selectedFile.toPath());
-                state.setContent(textArea.getText());
-                state.setTitle(selectedFile.getName());
-            }
+    public void onSave(ActionEvent actionEvent) throws IOException {
+        if (state.getPath() == null) {
+            onSaveAs(null);
+        } else {
+            Files.writeString(state.getPath(), textArea.getText());
         }
+    }
 
-        public void onExit (ActionEvent actionEvent) throws IOException {
-            //platform exit is better than system.exit
-            if ((state.getPath() == null && !textArea.getText().isEmpty())
-                    || (state.getContent() != null && !state.getContent().equals(textArea.getText()))) {
-                askToSave(Platform::exit, Platform::exit);
-            } else {
-                Platform.exit();
-            }
+    public void onSaveAs(ActionEvent actionEvent) throws IOException {
+        fileChooser.setTitle("Save As");
+        File selectedFile = fileChooser.showSaveDialog(stage);
+        if (selectedFile != null) {
+            Files.writeString(selectedFile.toPath(), textArea.getText());
+            state.setPath(selectedFile.toPath());
+            state.setContent(textArea.getText());
+            state.setTitle(selectedFile.getName());
         }
+    }
 
-        //needs update
-        public void onUndo (ActionEvent actionEvent){
-            if (!state.getContent().isEmpty()) {
-               textArea.undo();
-            } else if (state.getContent().isEmpty()) {
-                textArea.redo();
-            }
+    public void onExit(ActionEvent actionEvent) throws IOException {
+        //platform exit is better than system.exit
+        if ((state.getPath() == null && !textArea.getText().isEmpty())
+                || (state.getContent() != null && !state.getContent().equals(textArea.getText()))) {
+            askToSave(Platform::exit, Platform::exit);
+        } else {
+            Platform.exit();
         }
+    }
 
-        public void onTimeDate (ActionEvent actionEvent){
-            LocalDateTime localDateTime = LocalDateTime.now();
-            DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
-            textArea.appendText(localDateTime.format(dateTimeFormatter) + "\n");
-
+    //needs update
+    public void onUndo(ActionEvent actionEvent) {
+        if (!state.getContent().isEmpty()) {
+            textArea.undo();
+        } else if (state.getContent().isEmpty()) {
+            textArea.redo();
         }
+    }
+
+    public void onTimeDate(ActionEvent actionEvent) {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
+        textArea.appendText(localDateTime.format(dateTimeFormatter) + "\n");
 
     }
+
+}

@@ -8,7 +8,7 @@ import javafx.beans.property.StringProperty;
 import java.nio.file.Path;
 
 public class State {
-//
+    //
 //    private Path file;
 //    private String content;
 //
@@ -100,7 +100,11 @@ public class State {
 
     public void setTitle(String title) {
         //removing .txt from filename
-        this.title.set(title.substring(0, title.length() - 4)+" - Notepad");
+        if (title == "Untitled") {
+            this.title.set(title + " - Notepad");
+        } else {
+            this.title.set(title.substring(0, title.length() - 4) + " - Notepad");
+        }
     }
 
     public String getContent() {
