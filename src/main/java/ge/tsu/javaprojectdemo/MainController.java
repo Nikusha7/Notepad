@@ -29,9 +29,9 @@ import java.util.ResourceBundle;
 
 public class MainController implements Initializable {
 
-    public Separator separator;
     //MainController Attributes:
     private FileChooser fileChooser;
+
     private Stage stage;
     private Alert aboutAlert;
     private Alert askBeforeAlert;
@@ -41,7 +41,14 @@ public class MainController implements Initializable {
     public Text countLines;
     public MenuItem saveMenuItem;
     public MenuItem saveAsMenuItem;
+    public MenuItem deleteMenuItem;
+    public MenuItem undoMenuItem;
+    public MenuItem cutMenuItem;
+    public MenuItem copyMenuItem;
+    public MenuItem pasteMenuItem;
     public HBox hbox;
+    public Separator separator;
+
     //object of state
     private State state = new State();
 
@@ -63,9 +70,13 @@ public class MainController implements Initializable {
 
         //bindings:
         textArea.textProperty().bindBidirectional(state.contentProperty());
-        //disabling save and saveAs if there is no content
+        //disabling File:save, saveAs. Edit:Undo, Delete  if there is no content
         saveMenuItem.disableProperty().bind(textArea.textProperty().isEmpty());
         saveAsMenuItem.disableProperty().bind(textArea.textProperty().isEmpty());
+        undoMenuItem.disableProperty().bind(textArea.textProperty().isEmpty());
+        cutMenuItem.disableProperty().bind(textArea.selectedTextProperty().isEmpty());
+        copyMenuItem.disableProperty().bind(textArea.selectedTextProperty().isEmpty());
+        deleteMenuItem.disableProperty().bind(textArea.selectedTextProperty().isEmpty());
         //counting inputted text
         countText.textProperty().bind(state.contentProperty().length().asString());
 
@@ -92,6 +103,7 @@ public class MainController implements Initializable {
         this.stage = stage;
         stage.titleProperty().bindBidirectional(state.titleProperty());
     }
+
 
     public void onViewHelp(ActionEvent actionEvent) {
 
@@ -148,15 +160,15 @@ public class MainController implements Initializable {
         Main Controllers methods:
          */
         /*
+        TODO: clean jlink:javafx doesnot work and we need it to work because it generates zip file which contains .bat file which is used to open the program without code to see like in reality
         TODO: logic for word wrap(: a word processing feature that
         TODO: automatically transfers a word for which there is insufficient space from the end of one line of text to the beginning of the next.)
         Marked-if it's marked it means that when texts reaches the end then should be shifted down to the new line
         Unmarked-it should be left as it is now, because it works now as unmarked by default.
          */
 
-
     public void onNew(ActionEvent actionEvent) throws IOException {
-        if (state.getPath() != null || (state.getContent() == null && !textArea.getText().isEmpty())) {
+        if (state.getPath() != null || (state.getContent() != null && !textArea.getText().isEmpty())) {
             Runnable action = () -> {
                 state.clear();
             };
@@ -257,12 +269,21 @@ public class MainController implements Initializable {
     }
 
     //needs update
+    /*
+    TODO: property binding doesnot allow textarea.redo(). because we do redo when tet is empty
+     */
     public void onUndo(ActionEvent actionEvent) {
         if (!state.getContent().isEmpty()) {
             textArea.undo();
         } else if (state.getContent().isEmpty()) {
             textArea.redo();
         }
+
+
+//        if(state.getContent().isEmpty()){
+//            textArea.redo();
+//        }else
+//            textArea.undo();
     }
 
     public void onTimeDate(ActionEvent actionEvent) {
@@ -271,5 +292,27 @@ public class MainController implements Initializable {
         textArea.appendText(localDateTime.format(dateTimeFormatter) + "\n");
 
     }
+
+    public void onSelectAll(ActionEvent actionEvent) {
+        textArea.selectAll();
+    }
+
+    public void onDelete(ActionEvent actionEvent) {
+        textArea.clear();
+    }
+
+    public void onCut(ActionEvent actionEvent) {
+        textArea.cut();
+    }
+
+    public void onCopy(ActionEvent actionEvent) {
+        textArea.copy();
+    }
+
+    public void onPaste(ActionEvent actionEvent) {
+        textArea.paste();
+    }
+
+
 
 }

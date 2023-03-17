@@ -12,7 +12,7 @@ import java.util.ResourceBundle;
 
 public class AboutController implements Initializable {
     /*
-    AboutController class controls about.fxml which is about notepad window.
+    AboutController class controls about.fxml which is "about notepad" window.
      */
     public ImageView windowsLogo;
     public ImageView notepadLogo;
