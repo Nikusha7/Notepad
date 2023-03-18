@@ -26,8 +26,7 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.ResourceBundle;
-import java.net.*;
-import java.io.*;
+
 
 public class MainController implements Initializable {
 
@@ -39,6 +38,9 @@ public class MainController implements Initializable {
     private Alert askBeforeAlert;
 
     public TextArea textArea;
+    public Separator separator;
+    public HBox hbox;
+
     public Text countText;
     public Text countLines;
     public MenuItem saveMenuItem;
@@ -48,8 +50,12 @@ public class MainController implements Initializable {
     public MenuItem cutMenuItem;
     public MenuItem copyMenuItem;
     public MenuItem pasteMenuItem;
-    public HBox hbox;
-    public Separator separator;
+
+    //setter method for stage
+    public void setStage(Stage stage) {
+        this.stage = stage;
+        stage.titleProperty().bindBidirectional(state.titleProperty());
+    }
 
     //object of state
     private State state = new State();
@@ -57,8 +63,10 @@ public class MainController implements Initializable {
     public MainController() {
     }
 
-    //it is invoked only once, and it launches only after your main controller and its object are created
-    //it is something like constructor but for your controller
+    /*
+    it is invoked only once, and it launches only after your main controller and its object are created
+    it is something like constructor but for your controller
+    */
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
         fileChooser = new FileChooser();
@@ -72,7 +80,7 @@ public class MainController implements Initializable {
 
         //bindings:
         textArea.textProperty().bindBidirectional(state.contentProperty());
-        //disabling File:save, saveAs. Edit:Undo, Delete  if there is no content
+        //disabling File:save, saveAs. Edit:Undo, Cut, Copy, Delete if there is no content
         saveMenuItem.disableProperty().bind(textArea.textProperty().isEmpty());
         saveAsMenuItem.disableProperty().bind(textArea.textProperty().isEmpty());
         undoMenuItem.disableProperty().bind(textArea.textProperty().isEmpty());
@@ -81,18 +89,53 @@ public class MainController implements Initializable {
         deleteMenuItem.disableProperty().bind(textArea.selectedTextProperty().isEmpty());
         //counting inputted text
         countText.textProperty().bind(state.contentProperty().length().asString());
-
+        //setting initial font and size of text
         textArea.setFont(Font.font("", FontWeight.NORMAL, FontPosture.REGULAR, 12));
 
-        //countLines.textProperty().bind(state.contentProperty());
-        //countLines.setText(String.valueOf(textArea.getParagraphs().size()));
-//       countLines.setText(String.format("ln: ",textArea.getParagraphs().size()));
+        /*
+        TODO: 1) we are counting inputted text now we need to count paragraphs
+         */
+
+//        countLines.textProperty().bind(state.contentProperty());
+//        countLines.setText(String.valueOf(textArea.getParagraphs().size()));
+//        countLines.setText(String.format("ln: ",textArea.getParagraphs().size()));
 //        cssTextArea.setTextInsertionStyle(textArea.getText());
 //        cssTextArea.getParagraphs().sizeProperty().addListener((observable, oldValue, newValue) -> {
-//            countLines.setText(String.format("Ln: %d", textArea.getParagraphs().size()));
+//        countLines.setText(String.format("Ln: %d", textArea.getParagraphs().size()));
 //        });
     }
 
+/*
+        TODO: logic for word wrap(: a word processing feature that
+        TODO: automatically transfers a word for which there is insufficient space from the end of one line of text to the beginning of the next.)
+        Marked-if it's marked it means that when texts reaches the end then should be shifted down to the new line
+        Unmarked-it should be left as it is now, because it works now as unmarked by default.
+*/
+
+
+    /*
+    asToSave is the method which is used in onNew, onOpen and onExit methods
+    */
+    private void askToSave(Runnable onYes, Runnable onNo) throws IOException {
+        String alertContent = String.format("Do you want to save changes to %s", state.getFileName());
+        askBeforeAlert.setContentText(alertContent);
+        Optional<ButtonType> buttonType = askBeforeAlert.showAndWait();
+
+        if (buttonType.isPresent()) {
+            ButtonType type = buttonType.get();
+            if (type.equals(ButtonType.YES)) {
+                onSaveAs(null);
+                onYes.run();
+            } else if (type.equals(ButtonType.NO)) {
+                onNo.run();
+            }
+        }
+
+    }
+
+    /*
+    setAboutAlert: We are putting our scene of about controller in aboutAlert
+     */
     public void setAboutAlert(Parent aboutNode) {
         aboutAlert = new Alert(Alert.AlertType.NONE);
         aboutAlert.setTitle("About Notepad");
@@ -100,73 +143,11 @@ public class MainController implements Initializable {
         aboutAlert.getButtonTypes().addAll(ButtonType.CLOSE);
     }
 
-    //setter method for stage
-    public void setStage(Stage stage) {
-        this.stage = stage;
-        stage.titleProperty().bindBidirectional(state.titleProperty());
-    }
+     /*
+    Main Controllers methods:
 
-
-    public void onViewHelp(ActionEvent actionEvent) {
-        Desktop desktop = Desktop.getDesktop();
-        try {
-           desktop.browse((new URI("https://www.bing.com/search?q=get+help+with+notepad+in+windows&filters=guid:%224466414-en-dia%22%20lang:%22en%22&form=T00032&ocid=HelpPane-BingIA")));
-        } catch (IOException | URISyntaxException e) {
-            e.printStackTrace();
-        }
-
-    }
-
-    public void onAboutNotepad(ActionEvent actionEvent) throws IOException {
-        aboutAlert.showAndWait();
-    }
-
-    public void onStatusBar(ActionEvent actionEvent) {
-        if (!hbox.isDisabled()) {
-            //disables Hbox
-            hbox.setVisible(false);
-            hbox.setDisable(true);
-            //disables separator line
-            separator.setVisible(false);
-            separator.setDisable(true);
-        } else if (hbox.isDisabled()) {
-            hbox.setVisible(true);
-            hbox.setDisable(false);
-
-            separator.setVisible(true);
-            separator.setDisable(false);
-        }
-    }
-
-    //Views: Zoom features
-    double FontSizeOfTextArea = 12.0;
-
-    public void onZoomIn(ActionEvent actionEvent) {
-        FontSizeOfTextArea++;
-        textArea.setFont(Font.font("System", FontWeight.BOLD, FontSizeOfTextArea));
-    }
-
-    public void onZoomOut(ActionEvent actionEvent) {
-        FontSizeOfTextArea--;
-        textArea.setFont(Font.font("System", FontWeight.NORMAL, FontSizeOfTextArea));
-    }
-
-    public void OnRestoreDefaultZoom(ActionEvent actionEvent) {
-        textArea.setFont(Font.font("System", FontWeight.NORMAL, 12.0));
-        FontSizeOfTextArea = 12.0;
-    }
-
-
-        /*
-        Main Controllers methods:
-         */
-        /*
-        TODO: clean jlink:javafx doesnot work and we need it to work because it generates zip file which contains .bat file which is used to open the program without code to see like in reality
-        TODO: logic for word wrap(: a word processing feature that
-        TODO: automatically transfers a word for which there is insufficient space from the end of one line of text to the beginning of the next.)
-        Marked-if it's marked it means that when texts reaches the end then should be shifted down to the new line
-        Unmarked-it should be left as it is now, because it works now as unmarked by default.
-         */
+    FILE: Methods of file are given below!
+     */
 
     public void onNew(ActionEvent actionEvent) throws IOException {
         if (state.getPath() != null || (state.getContent() != null && !textArea.getText().isEmpty())) {
@@ -176,16 +157,8 @@ public class MainController implements Initializable {
             askToSave(action, action);
         }
     }
-        /*
-        if yes - save and open untitled new one
-        if no - don't save current but open untitled new one
-        if cancel - neither save nor open untitled new one
-         */
 
-    //needs to fix little mistake
     public void onOpen(ActionEvent actionEvent) throws IOException {
-        //both of them are changing in live
-        //if (!Objects.equals(state.getContent(), textArea.getText())) {
         if (!state.getContent().isEmpty()) {
             Runnable actionOpen = () -> {
                 fileChooser.setTitle("Open Text File");
@@ -207,7 +180,6 @@ public class MainController implements Initializable {
             askToSave(actionOpen, actionOpen);
             return;
         }
-        // }
         fileChooser.setTitle("Open Text File");
         File selectedFile = fileChooser.showOpenDialog(stage);
         String openedFileContent = Files.readString(selectedFile.toPath());
@@ -216,28 +188,6 @@ public class MainController implements Initializable {
         textArea.setText(state.getContent());
         state.setTitle(selectedFile.getName());
         stage.setTitle(state.getTitle());
-
-            /*
-            if YES -> save current one and open selected file
-            if NO -> don't save current but still open selected file
-            if Cancel -> don't save current one and don't open new file
-             */
-    }
-
-    private void askToSave(Runnable onYes, Runnable onNo) throws IOException {
-        String alertContent = String.format("Do you want to save changes to %s", state.getFileName());
-        askBeforeAlert.setContentText(alertContent);
-        Optional<ButtonType> buttonType = askBeforeAlert.showAndWait();
-
-        if (buttonType.isPresent()) {
-            ButtonType type = buttonType.get();
-            if (type.equals(ButtonType.YES)) {
-                onSaveAs(null);
-                onYes.run();
-            } else if (type.equals(ButtonType.NO)) {
-                onNo.run();
-            }
-        }
     }
 
     public void onSave(ActionEvent actionEvent) throws IOException {
@@ -269,7 +219,12 @@ public class MainController implements Initializable {
         }
     }
 
-    //needs update
+
+
+    /*
+    EDIT: Methods of edit are given below!
+     */
+
     /*
     TODO: property binding doesnot allow textarea.redo(). because we do redo when tet is empty
      */
@@ -279,26 +234,6 @@ public class MainController implements Initializable {
         } else if (state.getContent().isEmpty()) {
             textArea.redo();
         }
-
-//        if(state.getContent().isEmpty()){
-//            textArea.redo();
-//        }else
-//            textArea.undo();
-    }
-
-    public void onTimeDate(ActionEvent actionEvent) {
-        LocalDateTime localDateTime = LocalDateTime.now();
-        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
-        textArea.appendText(localDateTime.format(dateTimeFormatter) + "\n");
-
-    }
-
-    public void onSelectAll(ActionEvent actionEvent) {
-        textArea.selectAll();
-    }
-
-    public void onDelete(ActionEvent actionEvent) {
-        textArea.clear();
     }
 
     public void onCut(ActionEvent actionEvent) {
@@ -313,9 +248,92 @@ public class MainController implements Initializable {
         textArea.paste();
     }
 
+    public void onDelete(ActionEvent actionEvent) {
+        textArea.clear();
+    }
 
     public void onSearchWithBing(ActionEvent actionEvent) throws IOException {
 
     }
+
+    public void onSelectAll(ActionEvent actionEvent) {
+        textArea.selectAll();
+    }
+
+    public void onTimeDate(ActionEvent actionEvent) {
+        LocalDateTime localDateTime = LocalDateTime.now();
+        DateTimeFormatter dateTimeFormatter = DateTimeFormatter.ofPattern("HH:mm dd.MM.yyyy");
+        textArea.appendText(localDateTime.format(dateTimeFormatter) + "\n");
+    }
+
+
+
+    /*
+    FORMAT: Methods of format are given below!
+     */
+
+    public void onWordWrap(ActionEvent actionEvent) {
+    }
+
+
+
+    /*
+    VIEW: Methods of view are given below!
+     */
+
+    double FontSizeOfTextArea = 12.0;
+
+    public void onZoomIn(ActionEvent actionEvent) {
+        FontSizeOfTextArea++;
+        textArea.setFont(Font.font("System", FontWeight.BOLD, FontSizeOfTextArea));
+    }
+
+    public void onZoomOut(ActionEvent actionEvent) {
+        FontSizeOfTextArea--;
+        textArea.setFont(Font.font("System", FontWeight.NORMAL, FontSizeOfTextArea));
+    }
+
+    public void OnRestoreDefaultZoom(ActionEvent actionEvent) {
+        textArea.setFont(Font.font("System", FontWeight.NORMAL, 12.0));
+        FontSizeOfTextArea = 12.0;
+    }
+
+    public void onStatusBar(ActionEvent actionEvent) {
+        if (!hbox.isDisabled()) {
+            //disables Hbox
+            hbox.setVisible(false);
+            hbox.setDisable(true);
+            //disables separator line
+            separator.setVisible(false);
+            separator.setDisable(true);
+        } else if (hbox.isDisabled()) {
+            hbox.setVisible(true);
+            hbox.setDisable(false);
+
+            separator.setVisible(true);
+            separator.setDisable(false);
+        }
+    }
+
+
+
+    /*
+    HELP: Methods of help are given below!
+     */
+
+    public void onViewHelp(ActionEvent actionEvent) {
+        Desktop desktop = Desktop.getDesktop();
+        try {
+            desktop.browse((new URI("https://www.bing.com/search?q=get+help+with+notepad+in+windows&filters=guid:%224466414-en-dia%22%20lang:%22en%22&form=T00032&ocid=HelpPane-BingIA")));
+        } catch (IOException | URISyntaxException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void onAboutNotepad(ActionEvent actionEvent) throws IOException {
+        aboutAlert.showAndWait();
+    }
+
 
 }
