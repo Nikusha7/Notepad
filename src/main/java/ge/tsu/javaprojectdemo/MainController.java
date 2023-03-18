@@ -26,6 +26,8 @@ import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.Optional;
 import java.util.ResourceBundle;
+import java.net.*;
+import java.io.*;
 
 public class MainController implements Initializable {
 
@@ -106,10 +108,9 @@ public class MainController implements Initializable {
 
 
     public void onViewHelp(ActionEvent actionEvent) {
-
         Desktop desktop = Desktop.getDesktop();
         try {
-            desktop.browse(new URI("https://www.bing.com/search?q=get+help+with+notepad+in+windows&filters=guid:%224466414-en-dia%22%20lang:%22en%22&form=T00032&ocid=HelpPane-BingIA"));
+           desktop.browse((new URI("https://www.bing.com/search?q=get+help+with+notepad+in+windows&filters=guid:%224466414-en-dia%22%20lang:%22en%22&form=T00032&ocid=HelpPane-BingIA")));
         } catch (IOException | URISyntaxException e) {
             e.printStackTrace();
         }
@@ -279,7 +280,6 @@ public class MainController implements Initializable {
             textArea.redo();
         }
 
-
 //        if(state.getContent().isEmpty()){
 //            textArea.redo();
 //        }else
@@ -314,5 +314,8 @@ public class MainController implements Initializable {
     }
 
 
+    public void onSearchWithBing(ActionEvent actionEvent) throws IOException {
+
+    }
 
 }

@@ -71,6 +71,8 @@
                         <KeyCodeCombination alt="UP" code="DELETE" control="ANY" meta="UP" shift="UP" shortcut="UP" />
                      </accelerator>
                   </MenuItem>
+                  <SeparatorMenuItem mnemonicParsing="false" />
+                  <MenuItem mnemonicParsing="false" onAction="#onSearchWithBing" text="Search with bing..." />
                         <SeparatorMenuItem mnemonicParsing="false" />
                   <MenuItem mnemonicParsing="false" onAction="#onSelectAll" text="Select All">
                      <accelerator>
@@ -132,7 +134,7 @@
                         <Insets />
                     </HBox.margin>
                 </Text>
-            <Text fx:id="countLines" layoutX="216.0" layoutY="29.0" strokeType="OUTSIDE" strokeWidth="0.0" text="1" />
+            <Text fx:id="countLines" layoutX="216.0" layoutY="29.0" strokeType="OUTSIDE" strokeWidth="0.0" text="1," />
             <Text layoutX="187.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Col" />
             <Text fx:id="countText" layoutX="147.0" layoutY="30.0" strokeType="OUTSIDE" strokeWidth="0.0" text="1" />
                 <Separator orientation="VERTICAL" />
