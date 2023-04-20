@@ -8,50 +8,11 @@ import javafx.beans.property.StringProperty;
 import java.nio.file.Path;
 
 public class State {
-    //
-//    private Path file;
-//    private String content;
-//
-//    public void clear() {
-//        file = null;
-//        content = null;
-//    }
-//
-//    public String getFileName() {
-//        if (file == null) {
-//            return "Untitled";
-//        }
-//        String fileName = file.getFileName().toString();
-//        //removing ".txt" from name
-//        return fileName.substring(0, fileName.length() - 4);
-//    }
-//
-//    public String getTitle() {
-//        return getFileName() + " - Notepad";
-//    }
-//
-//    //getters and setters for file and content
-//    public Path getFile() {
-//        return file;
-//    }
-//
-//    public void setFile(Path file) {
-//        this.file = file;
-//    }
-//
-//    public String getContent() {
-//        return content;
-//    }
-//
-//    public void setContent(String content) {
-//        this.content = content;
-//    }
     private ObjectProperty<Path> path = new SimpleObjectProperty<>();
     private StringProperty filename = new SimpleStringProperty("Untitled");
     private StringProperty title = new SimpleStringProperty("Untitled - Notepad");
     private StringProperty content = new SimpleStringProperty("");
     private StringProperty contentParagraph = new SimpleStringProperty("");
-
 
     public String getContentParagraph() {
         return contentParagraph.get();

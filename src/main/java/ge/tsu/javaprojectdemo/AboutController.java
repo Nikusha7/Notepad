@@ -6,7 +6,6 @@ import javafx.scene.image.ImageView;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
 
-import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.URL;
@@ -27,14 +26,6 @@ public class AboutController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        //setting pictures to about notepad window
-//        File windowsLogoFile = new File("Images/Windows-logo.png");
-//        Image windowsLogoImage = new Image(windowsLogoFile.toURI().toString());
-//        windowsLogo.setImage(windowsLogoImage);
-//
-//        File notepadLogoFile = new File("Images/Notepad-icon.png");
-//        Image notepadLogoImage = new Image(notepadLogoFile.toURI().toString());
-//        notepadLogo.setImage(notepadLogoImage);
 
         try (InputStream imageInputStream = AboutController.class.getResourceAsStream("/images/Windows-logo.png")) {
             //if imageInputStream does not equal null code will continue, otherwise Java runtime system throws an AssertionError
@@ -46,7 +37,6 @@ public class AboutController implements Initializable {
         }
 
         try (InputStream imageInputStream = AboutController.class.getResourceAsStream("/images/Notepad-icon.png")) {
-            //if imageInputStream does not equal null code will continue, otherwise Java runtime system throws an AssertionError
             assert imageInputStream != null;
             Image notepadLogoImage = new Image(imageInputStream);
             notepadLogo.setImage(notepadLogoImage);
@@ -59,8 +49,8 @@ public class AboutController implements Initializable {
     public void setStage(Stage stage) {
         this.stage = stage;
 
-        stage.setTitle("prove that stage is passed to aboutController class");
-        txt.setText(stage.getTitle().toUpperCase());
+        String licenceTerms = "This product is licensed under my future employer: ";
+        txt.setText(licenceTerms.toUpperCase());
     }
 
 }
