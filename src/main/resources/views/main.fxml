@@ -90,12 +90,12 @@
                <items>
                   <Menu mnemonicParsing="false" text="Zoom">
                     <items>
-                        <MenuItem mnemonicParsing="false" onAction="#onZoomIn" text="   zoom in">
+                        <MenuItem mnemonicParsing="false" onAction="#onZoomIn" text="   Zoom In">
                            <accelerator>
                               <KeyCodeCombination alt="UP" code="PLUS" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                            </accelerator>
                         </MenuItem>
-                      <MenuItem mnemonicParsing="false" onAction="#onZoomOut" text="   zoom out">
+                      <MenuItem mnemonicParsing="false" onAction="#onZoomOut" text="   Zoom Out">
                            <accelerator>
                               <KeyCodeCombination alt="UP" code="MINUS" control="DOWN" meta="UP" shift="UP" shortcut="UP" />
                            </accelerator>
